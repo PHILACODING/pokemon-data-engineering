@@ -416,9 +416,9 @@ pokemon_analysis.ipynb
 pokemon_clean.csv
 pokemon_load.py
 pokemon_raw.csv
-project_plan2.pdf
 project_so_far.md
 README.md
+sql_script.sql
 ```
 
 ---
@@ -656,9 +656,9 @@ NULL base_experience → 49
 
 ---
 
-# 15. PostgreSQL ETL Validation — NEXT
+# 15. PostgreSQL ETL Validation — IN PROGRESS
 
-The next immediate task is to validate the PostgreSQL load before beginning analytical SQL.
+PostgreSQL ETL validation is currently in progress. The core load counts have already been verified, and additional data-quality checks are being performed before beginning analytical SQL.
 
 Validation will check:
 
@@ -688,7 +688,7 @@ The validation stage acts as a quality gate between the ETL load and analytical 
 
 ---
 
-# 16. SQL Analysis — NEXT
+# 16. SQL Analysis — READY
 
 After ETL validation, the project will move into analytical SQL.
 
@@ -760,10 +760,9 @@ Power BI
 
 ---
 
-# 18. Final Documentation & GitHub — FUTURE STAGE
+# 18. Final Documentation & GitHub — IN PROGRESS
 
-After the technical pipeline is complete, the project will be prepared as a portfolio project.
-
+The project is already being maintained in Git/GitHub as a portfolio project. Final documentation and repository polish will continue as the remaining technical stages are completed.
 Planned finalization includes:
 
 ```text
@@ -803,11 +802,11 @@ Indexes                     ✅ COMPLETE
 Python PostgreSQL loader    ✅ COMPLETE
 PostgreSQL ETL load         ✅ COMPLETE
 
-PostgreSQL validation       ⏳ NEXT
-SQL analytical queries      ⏳ NEXT
+PostgreSQL validation       🔄 IN PROGRESS
+SQL analytical queries      ⏳ READY
 Power BI dashboard          ⏳ NEXT
 Final documentation         ⏳ FINAL
-GitHub portfolio polish     ⏳ FINAL
+GitHub portfolio polish     🔄 IN PROGRESS
 ```
 
 ---
