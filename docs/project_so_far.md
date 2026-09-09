@@ -1,74 +1,114 @@
-# Pokémon End-to-End Data Engineering Project — Progress So Far
+# 🚀 Pokémon Data Engineering Project — Project So Far
 
-## Project Overview
+## 📌 Project Overview
 
-This project is an end-to-end data engineering and analytics pipeline using the free PokéAPI.
+This project is an end-to-end data engineering pipeline built around the free **PokéAPI**.
 
-The goal is to demonstrate the complete workflow from API data extraction through Python transformation, PostgreSQL data modeling and SQL analysis, and finally Power BI visualization.
+The objective is to demonstrate the complete journey of data from an external REST API through Python extraction, data transformation, PostgreSQL storage, SQL analytics, and Power BI reporting.
 
-The project is being built as a production-style portfolio project, with emphasis on:
+The project is being developed using a professional data-engineering repository structure with separation between raw data, processed data, source code, SQL, tests, documentation, and reporting.
 
-* Data extraction
-* Data profiling
-* Data quality validation
-* Data transformation
-* Relational data modeling
-* ETL pipeline development
-* SQL analytics
-* Business intelligence visualization
-* Reproducibility
-* Git/GitHub documentation
+---
 
-## Architecture
+# 🏗️ Current Architecture
 
 ```text
 PokéAPI
    ↓
-Python Requests
+Python API Extraction
    ↓
-JSON Response
+Raw CSV
    ↓
-Python List of Dictionaries
+Pandas Profiling & Transformation
    ↓
-Pandas DataFrame
-   ↓
-pokemon_raw.csv
-   ↓
-Jupyter Notebook
-   ↓
-Pandas + NumPy Profiling / Cleaning / Transformation / EDA
-   ↓
-pokemon_clean.csv
+Processed CSV
    ↓
 PostgreSQL
    ↓
-SQL Analysis
+ETL Validation
+   ↓
+SQL Analytical Queries
+   ↓
+pokemon_powerbi VIEW
    ↓
 Power BI
+   ↓
+Interactive Dashboard
 ```
 
 ---
 
-# 1. API Extraction — COMPLETED
-
-Created:
+# 📁 Project Structure
 
 ```text
-api_json.py
+pokemon-data-engineering/
+│
+├── .venv/
+├── .gitignore
+├── .env.example
+├── README.md
+├── requirements.txt
+│
+├── data/
+│   ├── raw/
+│   │   └── pokemon_raw.csv
+│   ├── processed/
+│   │   └── pokemon_clean.csv
+│   └── README.md
+│
+├── notebooks/
+│   └── pokemon_analysis.ipynb
+│
+├── src/
+│   └── pokemon_pipeline/
+│       ├── __init__.py
+│       ├── extraction/
+│       │   ├── __init__.py
+│       │   └── api_json.py
+│       ├── transformation/
+│       │   ├── __init__.py
+│       │   └── transform.py
+│       ├── loading/
+│       │   ├── __init__.py
+│       │   └── pokemon_load.py
+│       └── validation/
+│           ├── __init__.py
+│           └── validate.py
+│
+├── sql/
+│   ├── 01_database_setup.sql
+│   ├── 02_schema.sql
+│   ├── 03_validation.sql
+│   └── 04_analysis.sql
+│
+├── tests/
+│   ├── __init__.py
+│   ├── test_extraction.py
+│   ├── test_transformation.py
+│   └── test_validation.py
+│
+├── docs/
+│   ├── architecture.md
+│   ├── data_dictionary.md
+│   └── project_so_far.md
+│
+└── reports/
+    └── figures/
 ```
 
-Used Python `requests` to retrieve Pokémon data from:
+---
+
+# 1. API Extraction — ✅ COMPLETED
+
+Data is extracted from the free PokéAPI REST API using Python.
+
+The API returned:
 
 ```text
-https://pokeapi.co/api/v2
+1351 Pokémon records
 ```
 
-The extraction retrieved:
-
-* 1,351 Pokémon records
-* 13 initial attributes
-
-The extracted attributes were:
+The initial extracted dataset contained 13 fields:
 
 ```text
 id
@@ -86,22 +126,32 @@ special_defense
 speed
 ```
 
-The raw data was saved to:
+The raw API data is saved to:
 
 ```text
-pokemon_raw.csv
+data/raw/pokemon_raw.csv
 ```
+
+The extraction process demonstrates:
+
+* REST API requests
+* JSON responses
+* Python dictionaries
+* Python lists
+* API pagination/list retrieval
+* Structured raw-data storage
 
 ---
 
-# 2. Pandas Data Profiling & Transformation — COMPLETED
+# 2. Pandas Data Profiling & Transformation — ✅ COMPLETED
 
-Loaded the raw CSV into Pandas and performed data profiling and transformation.
+The raw CSV was loaded into Pandas for profiling, cleaning, validation and transformation.
 
-Initial dataset shape:
+Initial dataset:
 
 ```text
-(1351, 13)
+Rows:    1351
+Columns: 13
 ```
 
 Feature engineering added:
@@ -111,79 +161,42 @@ type_count
 ability_count
 ```
 
-Final DataFrame shape:
+Final transformed dataset:
 
 ```text
-(1351, 15)
+Rows:    1351
+Columns: 15
 ```
 
-## Data Types
+The transformation stage included:
 
-The final DataFrame contains:
-
-```text
-id                   int64
-name                 object
-height               int64
-weight               int64
-base_experience    float64
-types                object
-abilities            object
-hp                   int64
-attack               int64
-defense              int64
-special_attack       int64
-special_defense      int64
-speed                int64
-type_count            int64
-ability_count         int64
-```
-
-Important lesson:
-
-```python
-df.columns.dtype
-```
-
-returns the dtype of the column-name Index, not the dtype of every DataFrame column.
-
-To inspect actual column data types:
-
-```python
-df.dtypes
-```
-
-or:
-
-```python
-df.info()
-```
+* DataFrame inspection
+* Data-type inspection
+* Missing-value analysis
+* Duplicate detection
+* Numeric validation
+* List normalization
+* Feature engineering
+* Exploratory data analysis
 
 ---
 
-# 3. Missing-Value Analysis — COMPLETED
+# 3. Missing-Value Analysis — ✅ COMPLETED
 
-Only one column contains missing values:
+Only one field contains missing values:
 
 ```text
 base_experience
 ```
 
-Missing records:
+Results:
 
 ```text
-49
+Missing records: 49
+Missing percentage: 3.63%
 ```
 
-Missing percentage:
-
-```text
-3.63%
-```
-
-The missing values occur in later Pokémon form variants.
-
-The PokéAPI was directly checked to confirm that these missing values originate from the API rather than being caused by the CSV or Pandas processing.
+The PokéAPI was checked directly to confirm that these values originate from the source API.
 
 Decision:
 
@@ -191,122 +204,111 @@ Decision:
 Preserve the missing values.
 ```
 
-In Pandas they remain:
+The values remain:
 
 ```text
-NaN
+Pandas → NaN
+PostgreSQL → NULL
 ```
 
-When loaded into PostgreSQL they become:
+No artificial values were inserted.
 
-```text
-NULL
-```
+This demonstrates an important data-engineering principle:
 
-This preserves the source data rather than incorrectly imputing values that are unavailable from the API.
+> Missing source data should not automatically be replaced with invented values.
 
 ---
 
-# 4. Duplicate Analysis — COMPLETED
+# 4. Duplicate Analysis — ✅ COMPLETED
 
-Full duplicate rows:
-
-```text
-0
-```
-
-Duplicate Pokémon IDs:
+Duplicate checks produced:
 
 ```text
-0
-```
-
-Duplicate Pokémon names:
-
-```text
-0
+Full duplicate rows:       0
+Duplicate Pokémon IDs:     0
+Duplicate Pokémon names:   0
 ```
 
 All 1,351 Pokémon records have unique IDs and names.
 
 ---
 
-# 5. Numeric Data Validation — COMPLETED
+# 5. Numeric Data Validation — ✅ COMPLETED
 
-Validated the main numeric attributes for invalid values.
+Numeric attributes were checked for invalid values.
 
-Findings:
-
-* No zero/negative Pokémon heights
-* No negative Pokémon weights
-* One Pokémon has a weight of `0`
-* The zero weight belongs to `eternatus-eternamax`
-* Extreme values investigated were legitimate Pokémon/form records
-
-Decision:
+Results:
 
 ```text
-Do not remove legitimate extreme values.
-Do not modify the source-provided zero weight.
+Zero/negative heights: 0
+Negative weights:      0
 ```
 
-PokéAPI measurement units:
+One record has a source-provided weight of:
+
+```text
+0
+```
+
+This belongs to:
+
+```text
+eternatus-eternamax
+```
+
+The value was investigated and preserved rather than incorrectly modifying source data.
+
+PokéAPI units:
 
 ```text
 height → decimetres
 weight → hectograms
 ```
 
+Legitimate extreme values were also preserved.
+
 ---
 
-# 6. List/Data Normalization Preparation — COMPLETED
+# 6. List/Data Normalization — ✅ COMPLETED
 
-The following columns contain multiple values:
+The API contains nested list data in:
 
 ```text
 types
 abilities
 ```
 
-When saved to CSV, Python lists become strings such as:
+When stored in CSV, these lists become strings such as:
 
 ```text
 "['grass', 'poison']"
 ```
 
-Used:
+Python's:
 
 ```python
 ast.literal_eval()
 ```
 
-to safely convert these strings back into Python lists.
+was used to safely convert these strings back into Python lists.
 
-This allowed the data to be normalized into PostgreSQL child tables rather than storing multiple values inside a single relational column.
+The lists were then normalized into separate PostgreSQL relationship tables.
+
+This avoids storing multiple values inside a single relational database field.
 
 ---
 
-# 7. Pokémon Type Analysis — COMPLETED
+# 7. Pokémon Type Analysis — ✅ COMPLETED
 
-Total type assignments:
-
-```text
-2116
-```
-
-Single-type Pokémon:
+Type analysis produced:
 
 ```text
-586
+Total type assignments: 2116
+Single-type Pokémon:     586
+Dual-type Pokémon:       765
 ```
 
-Dual-type Pokémon:
-
-```text
-765
-```
-
-Most common Pokémon types:
+The most common types included:
 
 ```text
 water       192
@@ -319,42 +321,25 @@ electric    114
 fire        109
 fighting    109
 poison      106
-bug         106
-rock        104
-steel        99
-dark         99
-ghost        96
-ground       96
-fairy        88
-ice          69
 ```
 
-The analysis used:
+Pandas techniques such as:
 
 ```python
 df["types"].explode().value_counts()
 ```
 
-This demonstrated how nested list data can be flattened for analytical purposes.
+were used to flatten nested lists for analysis.
 
 ---
 
-# 8. Pokémon Ability Analysis — COMPLETED
+# 8. Pokémon Ability Analysis — ✅ COMPLETED
 
-Distinct abilities:
-
-```text
-313
-```
-
-Most common abilities include:
+The dataset contains:
 
 ```text
-swift-swim    48
-sturdy        48
-intimidate    47
-levitate      45
-keen-eye      43
+Distinct abilities: 313
+Total ability assignments: 2941
 ```
 
 Ability distribution:
@@ -366,108 +351,55 @@ Ability distribution:
 0 abilities → 11 Pokémon
 ```
 
-Total ability assignments:
+The most common abilities include:
 
 ```text
-2941
+swift-swim
+sturdy
+intimidate
+levitate
+keen-eye
 ```
 
-The following 11 records contain empty ability lists:
+The 11 records with empty ability lists were checked against the PokéAPI and preserved as legitimate source data.
+
+In PostgreSQL, these Pokémon simply have no corresponding rows in:
 
 ```text
-zygarde-mega
-heatran-mega
-darkrai-mega
-golisopod-mega
-magearna-mega
-magearna-original-mega
-zeraora-mega
-tatsugiri-curly-mega
-tatsugiri-droopy-mega
-tatsugiri-stretchy-mega
-baxcalibur-mega
+pokemon_abilities
 ```
-
-The PokéAPI was directly checked to confirm that these records legitimately return empty ability lists.
-
-Decision:
-
-```text
-Preserve empty ability lists.
-```
-
-In the normalized PostgreSQL model, these Pokémon simply have no corresponding rows in `pokemon_abilities`.
 
 ---
 
-# 9. Clean Dataset — COMPLETED
+# 9. Clean Dataset — ✅ COMPLETED
 
 The transformed dataset was saved as:
 
 ```text
-pokemon_clean.csv
+data/processed/pokemon_clean.csv
 ```
 
-Current project files include:
+At this point the project had successfully progressed from:
 
 ```text
-api_json.py
-pokemon_analysis.ipynb
-pokemon_clean.csv
-pokemon_load.py
-pokemon_raw.csv
-project_so_far.md
-README.md
-sql_script.sql
+API → Raw CSV → Pandas → Clean CSV
 ```
 
 ---
 
-# 10. PostgreSQL Database — COMPLETED
+# 10. PostgreSQL Database — ✅ COMPLETED
 
-PostgreSQL 18.4 is being used as the relational database.
-
-Database:
+A PostgreSQL database was created:
 
 ```text
 pokemon_data
 ```
 
-Schema:
+The relational model contains three main tables.
 
-```text
-public
-```
+## pokemon
 
-The database was recreated cleanly during development.
-
-Current database verification:
-
-```sql
-SELECT current_database(), current_schema();
-```
-
-Result:
-
-```text
-pokemon_data | public
-```
-
----
-
-# 11. PostgreSQL Data Model — COMPLETED
-
-The data was normalized into three relational tables.
-
-## Main Table
-
-```sql
-pokemon
-```
-
-Contains one row per Pokémon.
-
-Columns:
+Stores one record per Pokémon.
 
 ```text
 id
@@ -491,24 +423,16 @@ Primary key:
 id
 ```
 
-## Pokémon Types
+## pokemon_types
 
-```sql
-pokemon_types
-```
-
-Relationship:
+Stores Pokémon-to-type relationships.
 
 ```text
-pokemon
-   1
-   |
-   |
-   ∞
-pokemon_types
+pokemon_id
+type
 ```
 
-Primary key:
+Composite primary key:
 
 ```text
 (pokemon_id, type)
@@ -520,24 +444,16 @@ Foreign key:
 pokemon_id → pokemon.id
 ```
 
-## Pokémon Abilities
+## pokemon_abilities
 
-```sql
-pokemon_abilities
-```
-
-Relationship:
+Stores Pokémon-to-ability relationships.
 
 ```text
-pokemon
-   1
-   |
-   |
-   ∞
-pokemon_abilities
+pokemon_id
+ability
 ```
 
-Primary key:
+Composite primary key:
 
 ```text
 (pokemon_id, ability)
@@ -549,167 +465,108 @@ Foreign key:
 pokemon_id → pokemon.id
 ```
 
-The resulting relational model separates the many-valued `types` and `abilities` attributes from the main Pokémon entity.
-
----
-
-# 12. PostgreSQL Indexes — COMPLETED
-
-Created indexes for frequently queried attributes:
-
-```sql
-idx_pokemon_types_type
-```
-
-on:
+Indexes were created for:
 
 ```text
 pokemon_types(type)
-```
-
-and:
-
-```sql
-idx_pokemon_abilities_ability
-```
-
-on:
-
-```text
 pokemon_abilities(ability)
 ```
 
-These indexes are intended to improve filtering and aggregation queries involving Pokémon types and abilities.
+---
+
+# 11. Python → PostgreSQL ETL — ✅ COMPLETED
+
+A Python PostgreSQL loader was implemented.
+
+The loader successfully transfers the processed dataset into PostgreSQL.
+
+Expected and loaded records:
+
+```text
+pokemon:           1351
+pokemon_types:     2116
+pokemon_abilities: 2941
+```
+
+Missing `base_experience` values:
+
+```text
+49
+```
+
+The loader also converts Pandas `NaN` values into Python `None`, allowing PostgreSQL to store them as SQL `NULL`.
+
+The loading process was designed to be safely rerunnable during development.
 
 ---
 
-# 13. Python → PostgreSQL ETL Load — COMPLETED
+# 12. PostgreSQL ETL Validation — ✅ COMPLETED
 
-Created:
+The PostgreSQL database passed the project's validation checks.
 
-```text
-pokemon_load.py
-```
+Validation covered:
 
-Used:
-
-```text
-Python
-Pandas
-psycopg2
-PostgreSQL
-```
-
-The loader:
-
-1. Reads `pokemon_clean.csv`
-2. Converts serialized lists back to Python lists
-3. Connects to PostgreSQL
-4. Clears existing development data
-5. Loads Pokémon records
-6. Loads Pokémon-type relationships
-7. Loads Pokémon-ability relationships
-8. Commits the transaction
-9. Rolls back if an error occurs
-10. Closes the database connection
-
-The development load uses:
-
-```sql
-TRUNCATE TABLE pokemon RESTART IDENTITY CASCADE;
-```
-
-This makes the loader safely rerunnable during development.
-
-The loader also converts missing Pandas `NaN` values in `base_experience` into Python `None`, allowing PostgreSQL to store them as SQL `NULL`.
-
----
-
-# 14. PostgreSQL Load Result — COMPLETED
-
-The ETL load successfully completed.
-
-Output:
-
-```text
-Records to load: 1351
-Data load completed successfully.
-Database connection closed.
-```
-
-Therefore:
-
-```text
-Python → PostgreSQL
-```
-
-is successfully working.
-
-Expected database contents based on the validated source data:
-
-```text
-pokemon rows        → 1351
-pokemon_types rows  → 2116
-pokemon_abilities   → 2941
-NULL base_experience → 49
-```
-
----
-
-# 15. PostgreSQL ETL Validation — IN PROGRESS
-
-PostgreSQL ETL validation is currently in progress. The core load counts have already been verified, and additional data-quality checks are being performed before beginning analytical SQL.
-
-Validation will check:
-
-* Total Pokémon rows
-* Total type relationship rows
-* Total ability relationship rows
-* Missing `base_experience` values
-* Duplicate Pokémon IDs
+* Row counts
+* Duplicate IDs
+* Duplicate names
 * Foreign-key integrity
-* Orphan type records
-* Orphan ability records
-* `type_count` against actual type relationships
-* `ability_count` against actual ability relationships
+* Orphan records
+* Type-count consistency
+* Ability-count consistency
+* Missing `base_experience`
+* Invalid statistics
+* Invalid measurements
 * Overall ETL consistency
 
-Expected core validation:
+Final validation results:
 
 ```text
-pokemon rows        → 1351
-pokemon_types rows  → 2116
-pokemon_abilities   → 2941
-NULL base_experience → 49
-duplicate IDs       → 0
+pokemon rows:             1351
+pokemon_types rows:       2116
+pokemon_abilities rows:   2941
+NULL base_experience:       49
+duplicate IDs:                0
+orphan records:               0
+invalid statistics:            0
+invalid measurements:         0
 ```
 
-The validation stage acts as a quality gate between the ETL load and analytical SQL.
+The validation stage acts as a **data-quality gate** between ETL loading and analytical SQL.
 
 ---
 
-# 16. SQL Analysis — READY
+# 13. SQL Analytical Analysis — ✅ COMPLETED
 
-After ETL validation, the project will move into analytical SQL.
-
-Planned analysis includes:
+A dedicated analytical SQL script was created:
 
 ```text
-Pokémon statistics
-Type distribution
-Ability distribution
-Strongest Pokémon by statistics
-Average statistics by type
-Attack vs defense analysis
-Speed analysis
-Base experience analysis
-Multi-type Pokémon analysis
-Top Pokémon by combined statistics
+sql/04_analysis.sql
 ```
 
-SQL will use techniques such as:
+The project contains 15 analytical SQL queries.
+
+The analysis covers:
+
+1. Pokémon type distribution
+2. Top Pokémon by total base stats
+3. Most common Pokémon abilities
+4. Average combat statistics by type
+5. Single-type vs dual-type analysis
+6. Highest individual combat statistics
+7. Highest base-experience Pokémon
+8. Attack and defense ranking
+9. Average total statistics by type
+10. Strongest Pokémon within each type
+11. Fastest Pokémon
+12. Top 3 Pokémon within each type
+13. Average statistics by type category
+14. Most common dual-type combinations
+15. Abilities by average total statistics
+
+SQL techniques demonstrated include:
 
 ```text
+SELECT
 JOIN
 GROUP BY
 HAVING
@@ -719,105 +576,192 @@ Window Functions
 Aggregations
 Subqueries
 ORDER BY
+LIMIT
+UNION ALL
+PARTITION BY
+ROW_NUMBER()
 ```
 
-The goal is to demonstrate production-style analytical SQL rather than only basic `SELECT` queries.
-
-The SQL analysis will also be designed to produce meaningful datasets that can later feed Power BI.
+The objective is to demonstrate practical analytical SQL rather than only basic queries.
 
 ---
 
-# 17. Power BI — FUTURE STAGE
+# 14. Power BI SQL View — ✅ COMPLETED
 
-After SQL analysis, the PostgreSQL database will be connected to Power BI.
-
-Planned dashboard areas:
+A dedicated PostgreSQL view was created for Power BI:
 
 ```text
-Pokémon Overview
-Type Analysis
-Combat Statistics
-Abilities
-Top Pokémon
-Statistical Comparisons
+pokemon_powerbi
 ```
 
-The Power BI stage will demonstrate the complete analytical path:
+The view exposes the main Pokémon attributes and calculates:
 
 ```text
-API
- ↓
-Python
- ↓
-Pandas
- ↓
+total_stats
+```
+
+where:
+
+```text
+total_stats =
+hp
++ attack
++ defense
++ special_attack
++ special_defense
++ speed
+```
+
+This provides Power BI with a clean analytical dataset without creating a second physical copy of the underlying Pokémon data.
+
+---
+
+# 15. Power BI Connection — ✅ COMPLETED
+
+Power BI Desktop has been successfully connected to:
+
+```text
 PostgreSQL
- ↓
-SQL
- ↓
-Power BI
+    ↓
+pokemon_data
+    ↓
+public
+    ↓
+pokemon_powerbi
 ```
 
----
-
-# 18. Final Documentation & GitHub — IN PROGRESS
-
-The project is already being maintained in Git/GitHub as a portfolio project. Final documentation and repository polish will continue as the remaining technical stages are completed.
-Planned finalization includes:
+The following PostgreSQL objects are visible in Power BI:
 
 ```text
-README.md
-project documentation
-architecture diagram
-data dictionary
-SQL scripts
-ETL documentation
-Power BI dashboard
-screenshots
-Git commit history
-GitHub repository cleanup
+public pokemon
+public pokemon_abilities
+public pokemon_powerbi
+public pokemon_types
 ```
 
-Before pushing the project to GitHub, database credentials currently used for local development must be removed from source code.
-
-Credentials should be moved to environment variables or a `.env` file, and `.env` should be added to `.gitignore`.
-
----
-
-# Current Project Status
+The main Power BI dataset currently being used is:
 
 ```text
-API extraction              ✅ COMPLETE
-Raw CSV                     ✅ COMPLETE
-Pandas profiling            ✅ COMPLETE
-Data cleaning               ✅ COMPLETE
-Feature engineering        ✅ COMPLETE
-EDA                         ✅ COMPLETE
-Type analysis               ✅ COMPLETE
-Ability analysis            ✅ COMPLETE
-Clean CSV                   ✅ COMPLETE
-PostgreSQL database         ✅ COMPLETE
-Relational data model       ✅ COMPLETE
-Indexes                     ✅ COMPLETE
-Python PostgreSQL loader    ✅ COMPLETE
-PostgreSQL ETL load         ✅ COMPLETE
-
-PostgreSQL validation       🔄 IN PROGRESS
-SQL analytical queries      ⏳ READY
-Power BI dashboard          ⏳ NEXT
-Final documentation         ⏳ FINAL
-GitHub portfolio polish     🔄 IN PROGRESS
+public pokemon_powerbi
 ```
 
 ---
 
-# Engineering Lessons Learned
+# 16. Power BI Dashboard — 🔄 IN PROGRESS
 
-This project has covered several important data-engineering concepts:
+The Power BI dashboard has officially started.
+
+## Visual 1 — Total Pokémon
+
+A Card visual was created using the Pokémon ID count.
+
+Result:
+
+```text
+1,351 Pokémon
+```
+
+## Visual 2 — Pokémon Count by Type
+
+A clustered column chart was created using:
+
+```text
+pokemon_types.type
+```
+
+and the count of:
+
+```text
+pokemon_id
+```
+
+This visual displays the number of Pokémon associated with each type.
+
+## Visual 3 — Top Pokémon by Total Stats
+
+Currently being built.
+
+The planned visual uses:
+
+```text
+name
+total_stats
+```
+
+and will rank Pokémon by their combined combat statistics.
+
+---
+
+# 17. Git & GitHub — ✅ CURRENTLY SYNCED
+
+The project is maintained using Git.
+
+Recent commits include:
+
+```text
+ce8a6b4 refactor: restructure project into data engineering layout
+
+1041d4f fix: save extracted data to raw data directory
+
+3746f6f chore: finalize ETL validation and loading paths
+
+b80cef4 feat: add Pokemon SQL analysis queries
+```
+
+The latest changes have been pushed successfully to:
+
+```text
+https://github.com/PHILACODING/pokemon-data-engineering
+```
+
+Current Git state:
+
+```text
+Branch: main
+Working tree: clean
+Remote: synchronized
+```
+
+---
+
+# 📊 Current Project Status
+
+```text
+API extraction                 ✅ COMPLETE
+Raw CSV                        ✅ COMPLETE
+Pandas profiling               ✅ COMPLETE
+Data cleaning                  ✅ COMPLETE
+Feature engineering            ✅ COMPLETE
+EDA                            ✅ COMPLETE
+Type analysis                  ✅ COMPLETE
+Ability analysis               ✅ COMPLETE
+Clean CSV                      ✅ COMPLETE
+PostgreSQL database            ✅ COMPLETE
+Relational data model          ✅ COMPLETE
+Indexes                        ✅ COMPLETE
+Python PostgreSQL loader       ✅ COMPLETE
+PostgreSQL ETL load            ✅ COMPLETE
+PostgreSQL validation          ✅ COMPLETE
+SQL analytical queries         ✅ COMPLETE
+Power BI SQL view              ✅ COMPLETE
+Power BI connection            ✅ COMPLETE
+Power BI dashboard             🔄 IN PROGRESS
+Power BI visuals               🔄 IN PROGRESS
+Final documentation            ⏳ NEXT
+Python automated tests         ⏳ NEXT
+GitHub portfolio polish        🔄 IN PROGRESS
+```
+
+---
+
+# 🧠 Engineering Lessons Learned
+
+This project has covered:
 
 * REST API data extraction
 * JSON structures
-* Python dictionaries and lists
+* Python dictionaries
+* Python lists
 * Pandas DataFrames
 * Data profiling
 * Missing-value analysis
@@ -835,36 +779,108 @@ This project has covered several important data-engineering concepts:
 * Transactions
 * Commit and rollback
 * ETL pipeline design
-* Idempotent development loads
+* Rerunnable ETL loads
 * Referential integrity
 * SQL analytical workflows
-* Data quality gates
+* JOIN operations
+* Aggregations
+* GROUP BY
+* HAVING
+* CASE statements
+* CTEs
+* Window functions
+* Subqueries
+* Data-quality gates
+* PostgreSQL views
 * Preparing relational data for BI
+* Power BI reporting
+* Git/GitHub workflow
+* Professional project structure
 
 ---
 
-# Next Session
+# 🎯 Next Steps
 
-The immediate next task is:
-
-```text
-PostgreSQL ETL VALIDATION
-        ↓
-SQL ANALYSIS
-        ↓
-POWER BI
-        ↓
-FINAL DOCUMENTATION
-        ↓
-GITHUB PORTFOLIO
-```
-
-The Pokémon project will be completed end-to-end before moving to the next major project:
+The immediate priority is to complete the Power BI dashboard.
 
 ```text
-software-engineering-knowledge
+Power BI Dashboard
+       ↓
+Dashboard validation
+       ↓
+Python automated tests
+       ↓
+Final documentation
+       ↓
+Architecture documentation
+       ↓
+Data dictionary
+       ↓
+README improvements
+       ↓
+Screenshots
+       ↓
+GitHub portfolio polish
 ```
 
-The `software-engineering-knowledge` project is intended to be a **continuous long-term project** rather than a finite project.
+The next Power BI task is:
 
-It will eventually incorporate a local agent to automate the capture, curation, organization, indexing, documentation, and Git/GitHub workflow for accumulated software-engineering knowledge.
+```text
+Top Pokémon by Total Stats
+```
+
+After the dashboard is complete, the project will move toward final documentation, testing and portfolio presentation.
+
+---
+
+# 🏁 End-to-End Progress
+
+The project has successfully progressed through the core data-engineering pipeline:
+
+```text
+             ┌─────────────┐
+             │   PokéAPI   │
+             └──────┬──────┘
+                    ↓
+             ┌─────────────┐
+             │   Python    │
+             │ Extraction  │
+             └──────┬──────┘
+                    ↓
+             ┌─────────────┐
+             │  Raw CSV    │
+             └──────┬──────┘
+                    ↓
+             ┌─────────────┐
+             │   Pandas    │
+             │ Transform   │
+             └──────┬──────┘
+                    ↓
+             ┌─────────────┐
+             │ Processed   │
+             │    CSV      │
+             └──────┬──────┘
+                    ↓
+             ┌─────────────┐
+             │ PostgreSQL  │
+             └──────┬──────┘
+                    ↓
+             ┌─────────────┐
+             │ ETL Quality │
+             │    Gate     │
+             └──────┬──────┘
+                    ↓
+             ┌─────────────┐
+             │ SQL Analysis│
+             └──────┬──────┘
+                    ↓
+             ┌─────────────┐
+             │  Power BI   │
+             └──────┬──────┘
+                    ↓
+             ┌─────────────┐
+             │  Dashboard  │
+             └─────────────┘
+```
+
+The core **API → Python → Pandas → PostgreSQL → SQL → Power BI** pipeline is now operational. The remaining work is primarily dashboard completion, testing, documentation and portfolio polish.
