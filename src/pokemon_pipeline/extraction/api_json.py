@@ -33,6 +33,7 @@ if pokemon_info:
 import requests
 import pandas as pd
 import time
+from pathlib import Path
 
 base_url = "https://pokeapi.co/api/v2"
 
@@ -129,6 +130,14 @@ print(df.shape)
 print("\nColumns:")
 print(df.columns)
 
-df.to_csv("pokemon_raw.csv", index=False)
+# Find the project root directory.
+project_root = Path(__file__).resolve().parents[3]
+
+# Define the raw data output path.
+raw_data_path = project_root / "data" / "raw" / "pokemon_raw.csv"
+
+# Save the extracted data.
+df.to_csv(raw_data_path, index=False)
 
 print("\nCSV file created successfully!")
+
