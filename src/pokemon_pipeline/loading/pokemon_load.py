@@ -1,11 +1,17 @@
 # Import libraries for reading the CSV, converting list strings, and connecting to PostgreSQL.
 import ast
 import os
+from pathlib import Path
 
 import pandas as pd
 import psycopg2
-# Define the cleaned CSV file that will be loaded into PostgreSQL.
-csv_file = "pokemon_clean.csv"
+
+# Find the project root directory.
+project_root = Path(__file__).resolve().parents[3]
+
+# Define the cleaned data input path.
+csv_file = project_root / "data" / "processed" / "pokemon_clean.csv"
+
 # Define the PostgreSQL connection settings for the local project database.
 db_config = {
     "host": "localhost",

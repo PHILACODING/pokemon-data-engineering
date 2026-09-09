@@ -1,21 +1,20 @@
+```sql
 -- ============================================================
 -- POKÉMON DATA ENGINEERING PROJECT
 -- Data Validation and Quality Checks
 -- PostgreSQL 18
 -- ============================================================
 
--- IMPORTANT:
--- Connect to the "pokemon_data" database before running
--- this script.
-
+-- Connect to the "pokemon_data" database before running.
 -- ============================================================
--- 1. CHECK CURRENT DATABASE
+-- 1. DATABASE CHECK
 -- ============================================================
 
 SELECT current_database();
 
+
 -- ============================================================
--- 2. CHECK PROJECT TABLES
+-- 2. TABLE CHECK
 -- ============================================================
 
 SELECT table_name
@@ -23,8 +22,9 @@ FROM information_schema.tables
 WHERE table_schema = 'public'
 ORDER BY table_name;
 
+
 -- ============================================================
--- 3. CHECK ROW COUNTS
+-- 3. ROW COUNT VALIDATION
 -- ============================================================
 
 SELECT 'pokemon' AS table_name, COUNT(*) AS row_count
@@ -32,103 +32,17 @@ FROM pokemon
 
 UNION ALL
 
-SELECT 'pokemon_types' AS table_name, COUNT(*) AS row_count
+SELECT 'pokemon_types', COUNT(*)
 FROM pokemon_types
 
 UNION ALL
 
-SELECT 'pokemon_abilities' AS table_name, COUNT(*) AS row_count
+SELECT 'pokemon_abilities', COUNT(*)
 FROM pokemon_abilities;
 
--- ============================================================
--- 4. INSPECT POKÉMON TABLE STRUCTURE
--- ============================================================
-
-SELECT
-    column_name,
-    data_type,
-    is_nullable,
-    column_default
-FROM information_schema.columns
-WHERE table_schema = 'public'
-  AND table_name = 'pokemon'
-ORDER BY ordinal_position;
 
 -- ============================================================
--- 5. CHECK PRIMARY KEY
--- ============================================================
-
-SELECT
-    constraint_name,
-    constraint_type
-FROM information_schema.table_constraints
-WHERE table_schema = 'public'
-  AND table_name = 'pokemon'
-  AND constraint_type = 'PRIMARY KEY';
-
--- ============================================================
--- 6. CHECK FOREIGN KEY CONSTRAINTS
--- ============================================================
-
-SELECT
-    table_name,
-    constraint_name,
-    constraint_type
-FROM information_schema.table_constraints
-WHERE table_schema = 'public'
-  AND table_name IN ('pokemon_types', 'pokemon_abilities')
-  AND constraint_type = 'FOREIGN KEY'
-ORDER BY table_name;
-
--- ============================================================
--- 7. CHECK FOREIGN KEY RELATIONSHIPS
--- ============================================================
-
-SELECT
-    tc.table_name,
-    kcu.column_name,
-    ccu.table_name AS referenced_table,
-    ccu.column_name AS referenced_column
-FROM information_schema.table_constraints AS tc
-JOIN information_schema.key_column_usage AS kcu
-    ON tc.constraint_name = kcu.constraint_name
-    AND tc.table_schema = kcu.table_schema
-JOIN information_schema.constraint_column_usage AS ccu
-    ON tc.constraint_name = ccu.constraint_name
-    AND tc.table_schema = ccu.table_schema
-WHERE tc.constraint_type = 'FOREIGN KEY'
-  AND tc.table_schema = 'public'
-ORDER BY tc.table_name;
-
--- ============================================================
--- 8. SAMPLE POKÉMON DATA
--- ============================================================
-
-SELECT *
-FROM pokemon
-ORDER BY id
-LIMIT 10;
-
--- ============================================================
--- 9. SAMPLE POKÉMON TYPES
--- ============================================================
-
-SELECT *
-FROM pokemon_types
-ORDER BY pokemon_id
-LIMIT 15;
-
--- ============================================================
--- 10. SAMPLE POKÉMON ABILITIES
--- ============================================================
-
-SELECT *
-FROM pokemon_abilities
-ORDER BY pokemon_id
-LIMIT 15;
-
--- ============================================================
--- 11. CHECK NULL VALUES
+-- 4. NULL VALUE VALIDATION
 -- ============================================================
 
 SELECT
@@ -147,14 +61,136 @@ SELECT
     COUNT(*) FILTER (WHERE ability_count IS NULL) AS ability_count_nulls
 FROM pokemon;
 
+
 -- ============================================================
--- 12. INVESTIGATE NULL BASE EXPERIENCE
+-- 5. EXPECTED BASE EXPERIENCE NULLS
+-- ============================================================
+
+SELECT COUNT(*) AS base_experience_nulls
+FROM pokemon
+WHERE base_experience IS NULL;
+
+
+-- ============================================================
+-- 6. DUPLICATE ID VALIDATION
 -- ============================================================
 
 SELECT
     id,
-    name,
-    base_experience
+    COUNT(*) AS duplicate_count
 FROM pokemon
-WHERE base_experience IS NULL
-ORDER BY id;
+GROUP BY id
+HAVING COUNT(*) > 1;
+
+
+-- ============================================================
+-- 7. DUPLICATE NAME VALIDATION
+-- ============================================================
+
+SELECT
+    name,
+    COUNT(*) AS duplicate_count
+FROM pokemon
+GROUP BY name
+HAVING COUNT(*) > 1;
+
+
+-- ============================================================
+-- 8. FOREIGN KEY / ORPHAN VALIDATION
+-- ============================================================
+
+SELECT COUNT(*) AS orphan_type_records
+FROM pokemon_types pt
+LEFT JOIN pokemon p
+    ON pt.pokemon_id = p.id
+WHERE p.id IS NULL;
+
+
+SELECT COUNT(*) AS orphan_ability_records
+FROM pokemon_abilities pa
+LEFT JOIN pokemon p
+    ON pa.pokemon_id = p.id
+WHERE p.id IS NULL;
+
+
+-- ============================================================
+-- 9. TYPE COUNT CONSISTENCY
+-- ============================================================
+
+SELECT
+    p.id,
+    p.name,
+    p.type_count,
+    COUNT(pt.type) AS actual_type_count
+FROM pokemon p
+LEFT JOIN pokemon_types pt
+    ON p.id = pt.pokemon_id
+GROUP BY
+    p.id,
+    p.name,
+    p.type_count
+HAVING p.type_count <> COUNT(pt.type);
+
+
+-- ============================================================
+-- 10. ABILITY COUNT CONSISTENCY
+-- ============================================================
+
+SELECT
+    p.id,
+    p.name,
+    p.ability_count,
+    COUNT(pa.ability) AS actual_ability_count
+FROM pokemon p
+LEFT JOIN pokemon_abilities pa
+    ON p.id = pa.pokemon_id
+GROUP BY
+    p.id,
+    p.name,
+    p.ability_count
+HAVING p.ability_count <> COUNT(pa.ability);
+
+
+-- ============================================================
+-- 11. STAT VALIDATION
+-- ============================================================
+
+SELECT COUNT(*) AS invalid_stat_records
+FROM pokemon
+WHERE hp < 0
+   OR attack < 0
+   OR defense < 0
+   OR special_attack < 0
+   OR special_defense < 0
+   OR speed < 0;
+
+
+-- ============================================================
+-- 12. HEIGHT AND WEIGHT VALIDATION
+-- ============================================================
+
+SELECT COUNT(*) AS invalid_measurement_records
+FROM pokemon
+WHERE height <= 0
+   OR weight < 0;
+
+
+-- ============================================================
+-- 13. OVERALL ETL CONSISTENCY
+-- ============================================================
+
+SELECT
+    (SELECT COUNT(*) FROM pokemon) AS pokemon_count,
+
+    (SELECT COUNT(*) FROM pokemon_types)
+        AS type_relationships,
+
+    (SELECT COUNT(*) FROM pokemon_abilities)
+        AS ability_relationships,
+
+    (SELECT COALESCE(SUM(type_count), 0) FROM pokemon)
+        AS expected_type_relationships,
+
+    (SELECT COALESCE(SUM(ability_count), 0) FROM pokemon)
+        AS expected_ability_relationships;
+```
